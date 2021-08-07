@@ -38,23 +38,33 @@ func main() {
 
 	owner, repo := readArgs()
 
-	prs, _, err := client.PullRequests.List(ctx, owner, repo, nil)
-	if err != nil {
-		panic(fmt.Errorf("failed to list PR's: %w", err))
+	opts := &github.PullRequestListOptions{
+		State:       "open",
+		ListOptions: github.ListOptions{PerPage: 2},
 	}
-
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"ID", "Author", "Title", "Created At", "Open Time"})
 
-	for _, pr := range prs {
-		table.Append([]string{
-			strconv.Itoa(int(pr.GetNumber())),
-			pr.GetUser().GetLogin(),
-			pr.GetTitle(),
-			pr.GetCreatedAt().In(time.Local).Format(time.RFC1123),
-			time.Now().Sub(pr.GetCreatedAt()).Round(time.Second).String(),
-		})
-	}
+	for {
+		prs, resp, err := client.PullRequests.List(ctx, owner, repo, opts)
+		if err != nil {
+			panic(fmt.Errorf("failed to list PR's: %w", err))
+		}
 
+		for _, pr := range prs {
+			table.Append([]string{
+				strconv.Itoa(int(pr.GetNumber())),
+				pr.GetUser().GetLogin(),
+				pr.GetTitle(),
+				pr.GetCreatedAt().In(time.Local).Format(time.RFC1123),
+				time.Now().Sub(pr.GetCreatedAt()).Round(time.Second).String(),
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
 	table.Render()
 }
