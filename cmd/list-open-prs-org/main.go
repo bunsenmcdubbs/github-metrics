@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
 	"log"
 	"net/http"
@@ -61,6 +62,32 @@ func printTable(prs []PRWithRepo) {
 	table.Render()
 }
 
+func printCSV(prs []PRWithRepo) {
+	records := [][]string{
+		{"Repo", "ID", "Author", "Title", "Created At", "Open Time"},
+	}
+	for _, pr := range prs {
+		age := time.Now().Sub(pr.GetCreatedAt()).Round(time.Second)
+
+		records = append(records, []string{
+			pr.Repo,
+			strconv.Itoa(int(pr.GetNumber())),
+			pr.GetUser().GetLogin(),
+			pr.GetTitle(),
+			pr.GetCreatedAt().In(time.Local).Format(time.RFC1123),
+			durafmt.Parse(age).LimitFirstN(2).String(),
+		})
+	}
+
+	w := csv.NewWriter(os.Stdout)
+	w.WriteAll(records) // calls Flush internally
+
+	if err := w.Error(); err != nil {
+		log.Fatalln("error writing csv:", err)
+	}
+
+}
+
 func main() {
 	ctx := context.Background()
 	httpClient := authedHTTPClient(ctx, readGithubToken())
@@ -118,5 +145,6 @@ func main() {
 		return oldPrs[i].CreatedAt.Before(*oldPrs[j].CreatedAt)
 	})
 
-	printTable(oldPrs)
+	//printTable(oldPrs)
+	printCSV(oldPrs)
 }
