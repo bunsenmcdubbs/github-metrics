@@ -4,7 +4,7 @@ In the following examples,`GITHUB_TOKEN` is a [personal access token](https://do
 
 Example: Print out a cute table of all currently open PRs for a repository
 ```shell
-$ GITHUB_TOKEN=XXX go run ./cmd/list-open-prs <owner> <repository>
+$ GITHUB_TOKEN=XXX go run ./cmd/list-open-prs <owner>/<repository>
 +------+----------------+--------------------------------+-------------------------------+--------------+
 |  ID  |     AUTHOR     |             TITLE              |          CREATED AT           |  OPEN TIME   |
 +------+----------------+--------------------------------+-------------------------------+--------------+

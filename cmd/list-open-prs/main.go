@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bunsenmcdubbs/github-metrics/githubmetrics"
 	"github.com/google/go-github/v37/github"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/oauth2"
@@ -24,11 +25,15 @@ func authedHTTPClient(ctx context.Context, token string) *http.Client {
 }
 
 func readArgs() (owner string, repo string) {
-	if len(os.Args) != 3 {
+	if len(os.Args) != 2 {
 		fmt.Println(os.Args)
-		panic("incorrect number of arguments. usage: list-open-prs <owner> <repo>")
+		panic("incorrect number of arguments. usage: list-open-prs <owner>/<repo>")
 	}
-	return os.Args[1], os.Args[2]
+	owner, repo, err := githubmetrics.ParseRepoID(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+	return owner, repo
 }
 
 func main() {
