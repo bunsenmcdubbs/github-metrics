@@ -38,7 +38,7 @@ func createDB(ctx context.Context, path string) *sql.DB {
 	}
 
 	createTableQuery := `
-CREATE TABLE prs (
+CREATE TABLE IF NOT EXISTS prs (
     repository text not null,
 	id integer not null,
 	author text not null,
