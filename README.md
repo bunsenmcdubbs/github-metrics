@@ -46,3 +46,7 @@ group by author
 order by num_closed_prs desc;
 ```
 
+## TODO
+- [ ] Time to first review from opening PR
+- [ ] Time from first commit to opening PR
+- [ ] Time from first review to closing PR
